@@ -1,6 +1,5 @@
-﻿-- ==================== XXL-JOB 调度中心数据库初始化 ====================
-USE
-`flashcode_xxljob_dev`;
+-- ==================== XXL-JOB 调度中心数据库初始化 ====================
+USE `flashcode_xxljob_dev`;
 
 SET NAMES utf8mb4;
 

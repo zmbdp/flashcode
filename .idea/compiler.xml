@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="zmbdp-common-redis" />
+        <module name="zmbdp-gateway" />
+        <module name="zmbdp-common-datapermission" />
+        <module name="zmbdp-common-domain" />
+        <module name="zmbdp-file-service" />
+        <module name="zmbdp-common-ratelimit" />
+        <module name="zmbdp-common-security" />
+        <module name="zmbdp-common-message" />
+        <module name="zmbdp-portal-api" />
+        <module name="zmbdp-mstemplate-api" />
+        <module name="zmbdp-admin-service" />
+        <module name="zmbdp-common-rabbitmq" />
+        <module name="zmbdp-admin-api" />
+        <module name="zmbdp-common-excel" />
+        <module name="zmbdp-common-snowflake" />
+        <module name="zmbdp-common-xxljob" />
+        <module name="zmbdp-mstemplate-service" />
+        <module name="zmbdp-common-cache" />
+        <module name="zmbdp-portal-service" />
+        <module name="zmbdp-file-api" />
+        <module name="zmbdp-common-log" />
+        <module name="zmbdp-common-core" />
+        <module name="zmbdp-common-monitor" />
+        <module name="zmbdp-common-filter" />
+        <module name="zmbdp-common-idempotent" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="zmbdp-admin-api" options="-parameters" />
+      <module name="zmbdp-admin-service" options="-parameters" />
+      <module name="zmbdp-common-cache" options="-parameters" />
+      <module name="zmbdp-common-core" options="-parameters" />
+      <module name="zmbdp-common-datapermission" options="-parameters" />
+      <module name="zmbdp-common-domain" options="-parameters" />
+      <module name="zmbdp-common-excel" options="-parameters" />
+      <module name="zmbdp-common-filter" options="-parameters" />
+      <module name="zmbdp-common-idempotent" options="-parameters" />
+      <module name="zmbdp-common-log" options="-parameters" />
+      <module name="zmbdp-common-message" options="-parameters" />
+      <module name="zmbdp-common-monitor" options="-parameters" />
+      <module name="zmbdp-common-rabbitmq" options="-parameters" />
+      <module name="zmbdp-common-ratelimit" options="-parameters" />
+      <module name="zmbdp-common-redis" options="-parameters" />
+      <module name="zmbdp-common-security" options="-parameters" />
+      <module name="zmbdp-common-snowflake" options="-parameters" />
+      <module name="zmbdp-common-xxljob" options="-parameters" />
+      <module name="zmbdp-file-api" options="-parameters" />
+      <module name="zmbdp-file-service" options="-parameters" />
+      <module name="zmbdp-gateway" options="-parameters" />
+      <module name="zmbdp-mstemplate-api" options="-parameters" />
+      <module name="zmbdp-mstemplate-service" options="-parameters" />
+      <module name="zmbdp-portal-api" options="-parameters" />
+      <module name="zmbdp-portal-service" options="-parameters" />
+    </option>
+  </component>
+</project>

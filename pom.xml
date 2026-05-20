@@ -52,6 +52,7 @@
         <micrometer-tracing.version>1.3.3</micrometer-tracing.version>
         <skywalking.version>9.0.0</skywalking.version>
         <xxl-job.version>2.4.2</xxl-job.version>
+        <spring-ai-alibaba-starter-dashscope.version>1.1.0.0-RC2</spring-ai-alibaba-starter-dashscope.version>
 
         <!--运行环境-->
         <runenv>dev</runenv>
@@ -224,6 +225,13 @@
                 <version>${micrometer-tracing.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- Spring AI (Spring Boot 3 官方AI) -->
+            <dependency>
+                <groupId>com.alibaba.cloud.ai</groupId>
+                <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+                <version>${spring-ai-alibaba-starter-dashscope.version}</version>
             </dependency>
 
         </dependencies>

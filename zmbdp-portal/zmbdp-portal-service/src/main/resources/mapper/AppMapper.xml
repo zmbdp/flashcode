@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zmbdp.portal.service.flash.mapper.AppMapper">
+
+    <resultMap id="AppResultMap" type="com.zmbdp.portal.service.flash.domain.dto.AppDTO">
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="app_desc" property="appDesc" jdbcType="VARCHAR"/>
+        <result column="app_name" property="appName" jdbcType="VARCHAR"/>
+        <result column="app_type" property="appType" jdbcType="INTEGER"/>
+        <result column="app_screenshot" property="appScreenshot" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectAppsCount" resultType="Integer">
+        select count(1) from app
+        <where>
+            <if test="deployStatus != null">
+                and deploy_status = #{deployStatus}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="appType != null">
+                and app_type = #{appType}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPage" resultMap="AppResultMap">
+        select
+        id,
+        user_id,
+        app_desc,
+        app_name,
+        app_type,
+        app_screenshot
+        from
+        app
+        <where>
+            <if test="deployStatus != null">
+                and deploy_status = #{deployStatus}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="appType != null">
+                and app_type = #{appType}
+            </if>
+        </where>
+        order by id desc
+        limit #{offset}, #{pageSize}
+    </select>
+</mapper>

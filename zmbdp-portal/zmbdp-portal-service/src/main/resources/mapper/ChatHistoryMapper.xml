@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zmbdp.portal.service.flash.mapper.ChatHistoryMapper">
+
+    <resultMap id="ChatHistoryResultMap" type="com.zmbdp.portal.service.flash.domain.entity.ChatHistory">
+        <id property="id" column="id"/>
+        <result property="appId" column="app_id"/>
+        <result property="msgRole" column="msg_role"/>
+        <result property="content" column="content"/>
+    </resultMap>
+
+    <select id="selectTopByAppId" resultMap="ChatHistoryResultMap">
+        SELECT id,
+               app_id,
+               msg_role,
+               content
+        FROM chat_history
+        WHERE app_id = #{appId}
+        ORDER BY id DESC
+            LIMIT #{size}
+    </select>
+
+    <select id="selectChatHistoryCount" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM chat_history
+        WHERE app_id = #{appId}
+    </select>
+
+    <select id="selectChatHistoryPage"
+            parameterType="com.zmbdp.portal.service.flash.domain.dto.ChatHistoryListReqDTO"
+            resultType="com.zmbdp.portal.service.flash.domain.dto.ChatHistoryDTO">
+        SELECT id,
+               app_id,
+               msg_role,
+               content
+        FROM chat_history
+        WHERE app_id = #{appId}
+        ORDER BY id ASC
+            limit #{offset}, #{pageSize}
+    </select>
+</mapper>

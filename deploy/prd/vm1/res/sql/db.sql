@@ -4648,8 +4648,8 @@ CREATE TABLE `app`
 (
     `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键id',
     `user_id`        bigint(20) NOT NULL COMMENT '应用所属用户主键id',
-    `app_name`       varchar(10)  DEFAULT NULL COMMENT '应用名称',
-    `app_desc`       varchar(100) DEFAULT NULL COMMENT '应用描述',
+    `app_name`       varchar(100) DEFAULT NULL COMMENT '应用名称',
+    `app_desc`       text         DEFAULT NULL COMMENT '应用描述',
     `app_type`       tinyint(1)   DEFAULT NULL COMMENT '应用类型',
     `app_doc`        text         DEFAULT NULL COMMENT '应用需求文档',
     `preview_url`    text         DEFAULT NULL COMMENT '应用预览地址',

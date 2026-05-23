@@ -43,3 +43,4 @@ build/
 /logs/
 /**/apache-skywalking-java-agent-9.5.0/
 /.idea/
+/.feisuan/rules/project_rule.md

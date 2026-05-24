@@ -325,5 +325,20 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  flashcode-userapp-preview:
+    container_name: flashcode-userapp-preview
+    image: flashcode/userapp
+    build:
+      dockerfile: ./userapp/preview/Dockerfile
+    volumes:
+      - ../data/flashcodedata/userapp/user-preview:/workspace/user-preview
+      - ./userapp/preview/nginx/scripts:/workspace/scripts
+      - ./userapp/preview/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    restart: always
+    networks:
+      - flashcode_network_dev
+
 networks:
   flashcode_network_dev:

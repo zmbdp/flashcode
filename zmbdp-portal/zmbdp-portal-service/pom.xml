@@ -171,9 +171,7 @@
                             </build>
                             <run>
                                 <volumes>
-                                    <bind>
-                                        <volume>/home/bit/dev/data/flashcodedata/userapp/user-preview:/workspace/user-preview</volume>
-                                    </bind>
+                                    <bind>${skywalking.path}</bind>
                                 </volumes>
                                 <env>
                                     <NACOS_ADDR>${nacos.addr}</NACOS_ADDR>

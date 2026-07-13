@@ -41,7 +41,7 @@ build/
 /**/key.pem
 /PROJECT_STRUCTURE_DETAILED.md
 /logs/
-/**/apache-skywalking-java-agent-9.5.0/
+/**/skywalking-agent/
 /.idea/
 /.feisuan/rules/project_rule.md
 /user-code/

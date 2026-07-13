@@ -54,21 +54,33 @@
         <xxl-job.version>2.4.2</xxl-job.version>
         <spring-ai-alibaba-starter-dashscope.version>1.1.0.0-RC2</spring-ai-alibaba-starter-dashscope.version>
 
-        <!--运行环境-->
-        <runenv>dev</runenv>
-        <java.opts.default>-Xmx256m</java.opts.default>
+        <skywalking.path>/opt/scaffold-ai-assistant/deploy/skywalking/skywalking-agent:/opt/skywalking/agent</skywalking.path>
 
-        <!--系统配置中心-->
-<!--        <nacos.addr>http://你的云服务器内网ip/你的虚拟机内网ip:8848</nacos.addr>-->
-        <nacos.addr>http://10.0.0.16:8848</nacos.addr>
+        <!--测试环境-->
+        <runenv>test</runenv>
+        <java.opts.default>-Xmx256m -javaagent:/opt/skywalking/agent/skywalking-agent.jar
+            -Dskywalking.agent.service_name=${project.artifactId}
+            -Dskywalking.collector.backend_service=scaffold-ai-assistant-skywalking-oap:11800
+        </java.opts.default>
+        <nacos.addr>http://你的云服务器内网ip/你的虚拟机内网ip:8848</nacos.addr>
+        <docker.skip.push>false</docker.skip.push>
+
+        <!--生产环境-->
+<!--        <runenv>prd</runenv>-->
+<!--        <java.opts.default>-Xmx256m -javaagent:/opt/skywalking/agent/skywalking-agent.jar-->
+<!--            -Dskywalking.agent.service_name=${project.artifactId}-->
+<!--            -Dskywalking.collector.backend_service=scaffold-ai-assistant-skywalking-oap:11800-->
+<!--        </java.opts.default>-->
+<!--        <nacos.addr>http://你的云服务器1内网ip/你的虚拟机1内网ip:8854,http://你的云服务器1内网ip/你的虚拟机1内网ip:8856,http://你的云服务器2内网ip/你的虚拟机2内网ip:8858</nacos.addr>-->
+<!--        <docker.skip.push>false</docker.skip.push>-->
+
 
         <!--docker部署配置-->
-        <dockerhost.addr>tcp://121.4.251.59:2376</dockerhost.addr>
-        <dockerregistry.url>registry.cn-chengdu.aliyuncs.com</dockerregistry.url>
-        <dockerregistry.username>houyj1987@163.com</dockerregistry.username>
-        <dockerregistry.password>admin@666777</dockerregistry.password>
-        <dockerregistry.namespace>flashcode</dockerregistry.namespace>
-        <docker.skip.push>true</docker.skip.push>
+        <dockerhost.addr>tcp://你的云服务器外网ip/你的虚拟机外网ip:2376</dockerhost.addr>
+        <dockerregistry.url>crpi-otuh3k08p4yxr3tv.cn-shanghai.personal.cr.aliyuncs.com</dockerregistry.url>
+        <dockerregistry.namespace>zmbdp-service</dockerregistry.namespace>
+        <dockerregistry.username>${env.DOCKER_USERNAME}</dockerregistry.username>
+        <dockerregistry.password>${env.DOCKER_PASSWORD}</dockerregistry.password>
 
     </properties>
 

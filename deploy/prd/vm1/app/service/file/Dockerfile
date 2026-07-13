@@ -2,6 +2,6 @@ FROM openjdk:21-jdk-slim
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /workspace
-MAINTAINER JavaFh@163.com
-COPY ./*.jar /workspace/app.jar
-ENTRYPOINT ["java","-Xmx256m","-jar","app.jar"]
+LABEL maintainer="JavaFH@163.com"
+COPY target/*.jar /workspace/app.jar
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]

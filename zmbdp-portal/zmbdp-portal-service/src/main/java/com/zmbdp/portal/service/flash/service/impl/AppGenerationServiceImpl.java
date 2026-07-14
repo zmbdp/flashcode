@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.nio.file.Path;
  */
 @Slf4j
 @Service
+@RefreshScope
 public class AppGenerationServiceImpl implements IAppGenerationService {
 
     @Autowired
@@ -53,6 +55,12 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
     // TODO: 记得删掉: 127.0.0.1
     @Value("${app.preview.host:127.0.0.1}")
     private String previewHost;
+
+    /**
+     * 系统提示词（Nacos 配置，占位符 {{appId}} {{appHost}} {{DOLLAR}} 运行时替换）
+     */
+    @Value("${spring.ai.dashscope.chat.options.code-system-prompt:}")
+    private String codeSystemPrompt;
 
     /**
      * 生成应用
@@ -140,6 +148,12 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
      */
     private String composeSystemPrompt(Long appId) {
         long appHost = 10090 + appId % 10000000;
+        if (codeSystemPrompt != null && !codeSystemPrompt.isBlank()) {
+            return codeSystemPrompt
+                    .replace("{{appId}}", String.valueOf(appId))
+                    .replace("{{appHost}}", String.valueOf(appHost))
+                    .replace("{{DOLLAR}}", "$");
+        }
         return String.join("\n",
                 "你是资深全栈工程师和架构师，精通现代 Web 开发。你的目标是严格依据用户需求文档生成完整、可运行、代码整洁且页面美观的应用代码。",
                 "",
@@ -210,6 +224,30 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
                 "    6. `frontend/src/router/index.js`",
                 "    7. `frontend/src/views/` —— 至少2个视图组件。",
                 "  - **API 请求**: 前端请求后端接口时，URL 必须统一添加前缀 `/" + appId + "/api`。",
+                "  - **Vite 反向代理 (CRITICAL - 缺失会导致前后端无法联调)**:",
+                "    - `vite.config.js` 必须配置 `server.proxy`，将 `/" + appId + "/api` 路径代理到后端 `http://localhost:" + appHost + "`。",
+                "    - 必须使用 `rewrite` 去掉 `/" + appId + "` 前缀，使请求路径变为 `/api/...` 以匹配后端 Controller 的 `@RequestMapping(\"/api/...\")`。",
+                "    - 示例配置（必须严格按照此模板生成，将 appId 和端口号替换为实际值）：",
+                "      ```javascript",
+                "      import { defineConfig } from 'vite'",
+                "      import vue from '@vitejs/plugin-vue'",
+                "      import path from 'path'",
+                "",
+                "      export default defineConfig({",
+                "        plugins: [vue()],",
+                "        resolve: { alias: { '@': path.resolve(__dirname, './src') } },",
+                "        base: './',",
+                "        server: {",
+                "          proxy: {",
+                "            '/" + appId + "/api': {",
+                "              target: 'http://localhost:" + appHost + "',",
+                "              changeOrigin: true,",
+                "              rewrite: (path) => path.replace(/^\\/" + appId + "/, '')",
+                "            }",
+                "          }",
+                "        }",
+                "      })",
+                "      ```",
                 "",
                 "- **后端部分 (backend/)**: ",
                 "  - **技术栈**: Spring Boot 3.x 、JDK 21、 Maven3.9。",
@@ -241,6 +279,7 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
                 "6. 是否存在未定义变量、未定义方法、未定义组件？",
                 "7. 是否存在 import 错误？",
                 "8. 是否能够通过 `npm run build` 或 `mvn clean package`？",
+                "9. (VUE3_SPRING 专属) `frontend/vite.config.js` 是否配置了 `server.proxy`，将 `/" + appId + "/api` 代理到 `http://localhost:" + appHost + "`，并用 `rewrite` 去掉 `/" + appId + "` 前缀？",
                 "",
                 "### 输出格式约束 (CRITICAL)",
                 "你必须严格按照以下格式输出，解析器依赖此格式：",

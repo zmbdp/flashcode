@@ -54,8 +54,8 @@ public class RequirementsServiceImpl implements IRequirementsService {
     /**
      * 系统提示词
      */
-    @Value("${spring.ai.dashscope.chat.options.system-prompt:}")
-    private String systemPrompt;
+    @Value("${spring.ai.dashscope.chat.options.doc-system-prompt:}")
+    private String docSystemPrompt;
 
     /**
      * 模型名称
@@ -72,9 +72,9 @@ public class RequirementsServiceImpl implements IRequirementsService {
      * 初始化系统提示词
      */
     @PostConstruct
-    public void init() {
-        if (systemPrompt == null || systemPrompt.isBlank()) {
-            systemPrompt = String.join("\n",
+    public void initDocSystemPrompt() {
+        if (docSystemPrompt == null || docSystemPrompt.isBlank()) {
+            docSystemPrompt = String.join("\n",
                     "你是资深产品经理。也是 FlashCode 平台的智能助手小闪，根据用户提供的需求，生成正式且简洁的应用需求文档。请使用 Markdown 严格排版，采用如下结构与编号：",
                     "# 应用需求文档",
                     "## 1. 应用名称",
@@ -127,7 +127,7 @@ public class RequirementsServiceImpl implements IRequirementsService {
         StringBuilder appDocBuilder = new StringBuilder();
         try {
             chatClient.prompt()
-                    .system(systemPrompt)
+                    .system(docSystemPrompt)
                     .user(input)
                     .options(DashScopeChatOptions.builder()
                             .model(docModelName)  // 指定模型，把文档模型和代码生成模型分开

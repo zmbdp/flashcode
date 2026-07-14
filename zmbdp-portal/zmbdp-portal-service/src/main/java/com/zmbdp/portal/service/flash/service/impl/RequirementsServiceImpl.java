@@ -33,6 +33,9 @@ import java.util.regex.Pattern;
 @RefreshScope
 public class RequirementsServiceImpl implements IRequirementsService {
 
+    /**
+     * 聊天客户端
+     */
     @Autowired
     private ChatClient chatClient;
 
@@ -48,6 +51,9 @@ public class RequirementsServiceImpl implements IRequirementsService {
     @Value("${jwt.token.secret}")
     private String secret;
 
+    /**
+     * 应用映射器
+     */
     @Autowired
     private AppMapper appMapper;
 
@@ -63,6 +69,9 @@ public class RequirementsServiceImpl implements IRequirementsService {
     @Value("${spring.ai.dashscope.chat.options.flash.model.doc:qwen-turbo}")
     private String docModelName;
 
+    /**
+     * nacos 上配置 docMode 是否开启思考模式
+     */
     @Value("${spring.ai.dashscope.chat.options.thinking.doc:true}")
     private boolean docModeThinking;
 

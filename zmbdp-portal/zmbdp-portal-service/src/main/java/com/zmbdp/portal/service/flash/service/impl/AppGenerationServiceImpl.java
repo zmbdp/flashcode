@@ -31,12 +31,21 @@ import java.nio.file.Path;
 @RefreshScope
 public class AppGenerationServiceImpl implements IAppGenerationService {
 
+    /**
+     * 聊天客户端
+     */
     @Autowired
     private ChatClient chatClient;
 
+    /**
+     * 应用 mapper
+     */
     @Autowired
     private AppMapper appMapper;
 
+    /**
+     * Gitee 服务
+     */
     @Autowired
     private IGiteeService giteeService;
 
@@ -52,7 +61,10 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
     @Value("${spring.ai.dashscope.chat.options.thinking.code:true}")
     private boolean codeModeThinking;
 
-    // TODO: 记得删掉: 127.0.0.1
+    /**
+     * 预览地址
+     * TODO: 记得删掉: 127.0.0.1
+     */
     @Value("${app.preview.host:127.0.0.1}")
     private String previewHost;
 

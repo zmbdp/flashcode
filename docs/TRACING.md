@@ -304,7 +304,7 @@ java -javaagent:/path/to/skywalking-agent/skywalking-agent.jar \
 在 Dockerfile 中添加：
 
 ```dockerfile
-FROM openjdk:21-jdk-slim
+FROM crpi-otuh3k08p4yxr3tv.cn-shanghai.personal.cr.aliyuncs.com/zmbdp-infra/eclipse-temurin:21-jre
 
 # 复制 SkyWalking Agent
 COPY skywalking-agent /skywalking-agent

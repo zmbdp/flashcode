@@ -1,5 +1,5 @@
 # 基础镜像：Ubuntu 22.04（满足兼容性与长期支持）
-FROM openjdk:21-jdk-slim
+FROM crpi-otuh3k08p4yxr3tv.cn-shanghai.personal.cr.aliyuncs.com/zmbdp-infra/eclipse-temurin:21-jre
 
 # 非交互模式，避免 tzdata 等包在构建时阻塞
 ENV DEBIAN_FRONTEND=noninteractive

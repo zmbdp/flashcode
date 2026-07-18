@@ -1,4 +1,4 @@
-FROM openjdk:21-jdk-slim
+FROM crpi-otuh3k08p4yxr3tv.cn-shanghai.personal.cr.aliyuncs.com/zmbdp-infra/eclipse-temurin:21-jre
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /workspace

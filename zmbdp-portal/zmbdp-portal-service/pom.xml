@@ -171,7 +171,11 @@
                             </build>
                             <run>
                                 <volumes>
-                                    <bind>${skywalking.path}</bind>
+                                    <volume>${skywalking.path}</volume>
+                                    <volume>/opt/flashcode/test/data/flashcodedata/userapp/user-code:/workspace/user-code</volume>
+                                    <volume>/opt/flashcode/test/data/flashcodedata/userapp/user-preview:/workspace/user-preview</volume>
+                                    <volume>/opt/flashcode/dev/data/flashcodedata/userapp/user-deploy:/workspace/user-deploy</volume>
+                                    <volume>/opt/flashcode/test/app/config/cert:/workspace/cert</volume>
                                 </volumes>
                                 <env>
                                     <NACOS_ADDR>${nacos.addr}</NACOS_ADDR>

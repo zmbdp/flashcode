@@ -231,12 +231,26 @@
                                 <dockerFileDir>${project.basedir}</dockerFileDir>
                             </build>
                             <run>
+                                <network>
+                                    <mode>custom</mode>
+                                    <name>${docker.network.name}</name>
+                                </network>
                                 <volumes>
-                                    <volume>${skywalking.path}</volume>
-                                    <volume>/opt/flashcode/deploy/test/data/flashcodedata/userapp/user-code:/workspace/user-code</volume>
-                                    <volume>/opt/flashcode/deploy/test/data/flashcodedata/userapp/user-preview:/workspace/user-preview</volume>
-                                    <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/user-deploy:/workspace/user-deploy</volume>
-                                    <volume>/opt/flashcode/deploy/test/app/config/cert:/workspace/cert</volume>
+                                    <bind>
+                                        <volume>${skywalking.path}</volume>
+    <!--                                    <volume>/opt/flashcode/deploy/test/data/flashcodedata/userapp/user-code:/workspace/user-code</volume>-->
+    <!--                                    <volume>/opt/flashcode/deploy/test/data/flashcodedata/userapp/user-preview:/workspace/user-preview</volume>-->
+    <!--                                    <volume>/opt/flashcode/deploy/test/app/config/cert:/workspace/cert</volume>-->
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/user-deploy:/workspace/user-deploy</volume>
+                                        <volume>/opt/flashcode/deploy/dev/app/config/cert:/workspace/cert</volume>
+                                        <!-- Maven 本地仓库持久化（避免每次构建都重新下载依赖） -->
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/maven-repo:/root/.m2/repository</volume>
+                                        <!-- npm 缓存持久化（避免每次构建都重新下载依赖） -->
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/npm-cache:/root/.npm</volume>
+                                        <!-- 用户生成的代码和预览产物持久化（容器重启不丢失，与 userapp-preview 容器共享 user-preview） -->
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/user-code:/workspace/user-code</volume>
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/user-preview:/workspace/user-preview</volume>
+                                    </bind>
                                 </volumes>
                                 <env>
                                     <NACOS_ADDR>${nacos.addr}</NACOS_ADDR>

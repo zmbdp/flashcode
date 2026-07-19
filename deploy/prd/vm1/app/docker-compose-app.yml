@@ -63,6 +63,15 @@ services:
       JAVA_OPTS: -javaagent:/skywalking-agent/skywalking-agent.jar -Dskywalking.agent.service_name=zmbdp-portal -Dskywalking.collector.backend_service=你的云服务器1内网ip/你的虚拟机1内网ip:11800 -Xmx256m -Dspring.cloud.nacos.discovery.ip=你的云服务器1内网ip/你的虚拟机1内网ip
     volumes:
       - ./skywalking-agent:/skywalking-agent  # 挂载 SkyWalking Agent
+      # Maven 镜像源配置（阿里云公共仓库）+ 本地仓库持久化（避免每次构建都重新下载依赖）
+      - ./service/portal/maven-settings.xml:/root/.m2/settings.xml:ro
+      - ../data/flashcodedata/portal/maven-repo:/root/.m2/repository
+      # npm 镜像源配置（淘宝镜像）+ 缓存持久化
+      - ./service/portal/npmrc:/root/.npmrc:ro
+      - ../data/flashcodedata/portal/npm-cache:/root/.npm
+      # 用户生成的代码和预览产物持久化（容器重启不丢失）
+      - ../data/flashcodedata/portal/user-code:/workspace/user-code
+      - ../data/flashcodedata/portal/user-preview:/workspace/user-preview
     networks:
       flashcode_network_prd:
 networks:

@@ -1,6 +1,6 @@
-FROM crpi-otuh3k08p4yxr3tv.cn-shanghai.personal.cr.aliyuncs.com/zmbdp-infra/eclipse-temurin:21-jre
+FROM crpi-otuh3k08p4yxr3tv.cn-shanghai.personal.cr.aliyuncs.com/zmbdp-infra/eclipse-temurin:21-jdk
 
-LABEL maintainer="zmbdp"
+LABEL maintainer="JavaFH@163.com"
 
 ENV TZ=Asia/Shanghai
 ENV MAVEN_VERSION=3.9.16

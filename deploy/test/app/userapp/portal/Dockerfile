@@ -1,6 +1,6 @@
-FROM openjdk:21-jdk-slim
+FROM crpi-otuh3k08p4yxr3tv.cn-shanghai.personal.cr.aliyuncs.com/zmbdp-infra/eclipse-temurin:21-jre
 
-MAINTAINER bitejiuyeke
+LABEL maintainer="JavaFH@163.com"
 
 ENV TZ=Asia/Shanghai
 ENV MAVEN_VERSION=3.9.14

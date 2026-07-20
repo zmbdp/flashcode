@@ -122,7 +122,9 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
         );
         try {
             // 写入文件到本地，方便后面运行给用户看效果
-            Path appPath = GeneratedAppWriter.writeFiles(appId, parsedResult.getFiles());
+            // cleanFirst=true：同一 appId 重复生成时先清理旧代码目录，
+            // 避免 AI 第一次生成的多余文件（如 com.example.DemoApplication）残留干扰第二次构建
+            Path appPath = GeneratedAppWriter.writeFiles(appId.toString(), parsedResult.getFiles(), true);
             // 提交到码云上
             giteeService.commit(appId, appPath, parsedResult.getAppType(), parsedResult.getFiles());
             // 1. 预览容器中 Nginx 配置
@@ -182,6 +184,9 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
     }
 
     private void handelApp(Long appId, String appType, Path appPath, String previewDeployPath) throws IOException {
+        // 同一 appId 重复生成时，先清理旧的预览产物（dist、jar、静态资源等），
+        // 避免旧文件残留干扰新一次构建（例如旧的 com.example.DemoApplication.class 残留）
+        FileUtil.cleanAppDir(appId, previewDeployPath);
         switch (appType) {
             case "HTML":
                 Path targetPath = FileUtil.ensureAppDir(appId, previewDeployPath).resolve("dist");
@@ -295,12 +300,17 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
                 "  - **技术栈**: Spring Boot 3.x 、JDK 21、 Maven3.9。",
                 "  - **必须输出的后端文件列表 (CRITICAL - 缺一不可)**:",
                 "    1. `backend/pom.xml`",
-                "    2. `backend/src/main/java/.../XxxApplication.java` —— 启动类。",
+                "    2. `backend/src/main/java/.../XxxApplication.java` —— 启动类，**全局唯一**，禁止生成多个启动类。",
                 "    3. `backend/src/main/java/.../controller/XxxController.java` —— `@RequestMapping` 以 `/api` 开头，不加 `" + appId + "`。",
                 "    4. `backend/src/main/java/.../model/Xxx.java` —— 实体类。",
                 "    5. `backend/src/main/resources/application.properties` —— 必须配置：`server.port=${APP_PORT:" + appHost + "}`，支持动态端口启动。",
                 "  - **核心依赖**: `pom.xml` 必须继承 `spring-boot-starter-parent`，引入 `spring-boot-starter-web`。",
                 "  - **构建配置**: `pom.xml` 必须包含 `spring-boot-maven-plugin`。",
+                "  - **包名规范 (CRITICAL)**:",
+                "    - 所有 Java 类必须放在与应用业务相关的统一包下，包名根据应用名称语义化生成（如 `com.foodblog`、`com.bookstore`）。",
+                "    - **绝对禁止**使用 `com.example`、`com.example.demo`、`com.demo` 等任何形式的 Spring Initializr 默认包名。",
+                "    - **绝对禁止**生成 `DemoApplication`、`Application`（无业务前缀）等默认命名。",
+                "    - 所有 Controller、Service、Model 等类必须与启动类在同一个根包下。",
                 "  - **数据存储**: 仅使用内存 (`ConcurrentHashMap`) 存储数据，`@PostConstruct` 初始化至少3条演示数据。",
                 "  - **禁止错误写法**:",
                 "    - 禁止 Map/List 初始化时引用自身。",
@@ -321,6 +331,7 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
                 "6. 是否存在未定义变量、未定义方法、未定义组件？",
                 "7. 是否存在 import 错误？",
                 "8. 是否能够通过 `npm run build` 或 `mvn clean package`？",
+                "9. **后端启动类是否全局唯一？是否存在 `com.example`、`com.demo` 等默认包名？**",
                 "",
                 "### 输出格式约束 (CRITICAL)",
                 "你必须严格按照以下格式输出，解析器依赖此格式：",

@@ -4,7 +4,7 @@ services:
   flashcode-admin:
     build:
       context: service/admin
-    image: flashcodeprd/zmbdp-admin-service:1.0-SNAPSHOT
+    image: flashcodeprd/zmbdp-admin-service:1.0
     container_name: flashcode-admin-prd
     ports:
       - "18081:18081"
@@ -19,7 +19,7 @@ services:
       context: service/file
     ports:
       - "18082:18082"
-    image: flashcodeprd/zmbdp-file-service:1.0-SNAPSHOT
+    image: flashcodeprd/zmbdp-file-service:1.0
     container_name: flashcode-file-prd
     environment:
       RUN_ENV: prd
@@ -32,7 +32,7 @@ services:
       context: service/gateway
     ports:
       - "10030:10030"
-    image: flashcodeprd/zmbdp-gateway-service:1.0-SNAPSHOT
+    image: flashcodeprd/zmbdp-gateway-service:1.0
     container_name: flashcode-gateway-prd
     environment:
       RUN_ENV: prd
@@ -45,12 +45,22 @@ services:
       context: service/portal
     ports:
       - "18083:18083"
-    image: flashcodeprd/zmbdp-portal-service:1.0-SNAPSHOT
+    image: flashcodeprd/zmbdp-portal-service:1.0
     container_name: flashcode-portal-prd
     environment:
       RUN_ENV: prd
       NACOS_ADDR: 你的云服务器1内网ip/你的虚拟机1内网ip:8854,你的云服务器1内网ip/你的虚拟机1内网ip:8856,你的云服务器2内网ip/你的虚拟机2内网ip:8858
       JAVA_OPTS: -Xmx256m -Dspring.cloud.nacos.discovery.ip=你的云服务器2内网ip/你的虚拟机2内网ip
+    volumes:
+      # Maven 镜像源配置（阿里云公共仓库）+ 本地仓库持久化（避免每次构建都重新下载依赖）
+      - ./service/portal/maven-settings.xml:/root/.m2/settings.xml:ro
+      - ../data/flashcodedata/portal/maven-repo:/root/.m2/repository
+      # npm 镜像源配置（淘宝镜像）+ 缓存持久化
+      - ./service/portal/npmrc:/root/.npmrc:ro
+      - ../data/flashcodedata/portal/npm-cache:/root/.npm
+      # 用户生成的代码和预览产物持久化（容器重启不丢失）
+      - ../data/flashcodedata/portal/user-code:/workspace/user-code
+      - ../data/flashcodedata/portal/user-preview:/workspace/user-preview
     networks:
       flashcode_network_prd:
 networks:

@@ -1,0 +1,4 @@
+# npm 镜像源配置
+# 使用淘宝镜像，加快依赖下载速度
+# 挂载到容器内 /root/.npmrc
+registry=https://registry.npmmirror.com

@@ -12,7 +12,7 @@
 
     <groupId>com.zmbdp</groupId>
     <artifactId>flashcode</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
 
     <packaging>pom</packaging>
@@ -30,8 +30,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>21</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 
         <!-- 依赖版本规定 -->
         <spring-boot.version>3.3.3</spring-boot.version>
@@ -53,30 +53,40 @@
         <skywalking.version>9.0.0</skywalking.version>
         <xxl-job.version>2.4.2</xxl-job.version>
         <spring-ai-alibaba-starter-dashscope.version>1.1.0.0-RC2</spring-ai-alibaba-starter-dashscope.version>
+        <docker-java.version>3.3.6</docker-java.version>
+        <selenium.version>4.33.0</selenium.version>
+        <webdrivermanager.version>6.1.0</webdrivermanager.version>
+        <spring-ai-milvus-store.version>1.1.0</spring-ai-milvus-store.version>
+        <spring-ai-autoconfigure-vector-store-milvus.version>1.1.0</spring-ai-autoconfigure-vector-store-milvus.version>
+        <spring-ai-advisors-vector-store.version>1.1.0</spring-ai-advisors-vector-store.version>
+        <spring-ai-starter-mcp-client.version>1.1.0</spring-ai-starter-mcp-client.version>
+        <spring-ai-alibaba-graph-core.version>1.1.0.0-RC2</spring-ai-alibaba-graph-core.version>
 
-        <skywalking.path>/opt/scaffold-ai-assistant/deploy/skywalking/skywalking-agent:/opt/skywalking/agent</skywalking.path>
+        <skywalking.path>/opt/flashcode/deploy/skywalking/skywalking-agent:/opt/skywalking/agent</skywalking.path>
 
+        <runenv>dev</runenv>
         <!--测试环境-->
-        <runenv>test</runenv>
+<!--        <runenv>test</runenv>-->
         <java.opts.default>-Xmx256m -javaagent:/opt/skywalking/agent/skywalking-agent.jar
             -Dskywalking.agent.service_name=${project.artifactId}
-            -Dskywalking.collector.backend_service=scaffold-ai-assistant-skywalking-oap:11800
+            -Dskywalking.collector.backend_service=flashcode-skywalking-oap:11800
         </java.opts.default>
-        <nacos.addr>http://你的云服务器内网ip/你的虚拟机内网ip:8848</nacos.addr>
+        <nacos.addr>http://flashcode-nacos:8848</nacos.addr>
         <docker.skip.push>false</docker.skip.push>
 
         <!--生产环境-->
-<!--        <runenv>prd</runenv>-->
-<!--        <java.opts.default>-Xmx256m -javaagent:/opt/skywalking/agent/skywalking-agent.jar-->
-<!--            -Dskywalking.agent.service_name=${project.artifactId}-->
-<!--            -Dskywalking.collector.backend_service=scaffold-ai-assistant-skywalking-oap:11800-->
-<!--        </java.opts.default>-->
-<!--        <nacos.addr>http://你的云服务器1内网ip/你的虚拟机1内网ip:8854,http://你的云服务器1内网ip/你的虚拟机1内网ip:8856,http://你的云服务器2内网ip/你的虚拟机2内网ip:8858</nacos.addr>-->
-<!--        <docker.skip.push>false</docker.skip.push>-->
+        <!--        <runenv>prd</runenv>-->
+        <!--        <java.opts.default>-Xmx256m -javaagent:/opt/skywalking/agent/skywalking-agent.jar-->
+        <!--            -Dskywalking.agent.service_name=${project.artifactId}-->
+        <!--            -Dskywalking.collector.backend_service=flashcode-skywalking-oap:11800-->
+        <!--        </java.opts.default>-->
+        <!--        <nacos.addr>http://你的云服务器1内网ip/你的虚拟机1内网ip:8854,http://你的云服务器1内网ip/你的虚拟机1内网ip:8856,http://你的云服务器2内网ip/你的虚拟机2内网ip:8858</nacos.addr>-->
+        <!--        <docker.skip.push>false</docker.skip.push>-->
 
 
         <!--docker部署配置-->
-        <dockerhost.addr>tcp://你的云服务器外网ip/你的虚拟机外网ip:2376</dockerhost.addr>
+        <dockerhost.addr>tcp://117.72.161.12:2376</dockerhost.addr>
+        <docker.network.name>flashcode_flashcode_network_${runenv}</docker.network.name>
         <dockerregistry.url>crpi-otuh3k08p4yxr3tv.cn-shanghai.personal.cr.aliyuncs.com</dockerregistry.url>
         <dockerregistry.namespace>zmbdp-service</dockerregistry.namespace>
         <dockerregistry.username>${env.DOCKER_USERNAME}</dockerregistry.username>
@@ -245,6 +255,54 @@
                 <groupId>com.alibaba.cloud.ai</groupId>
                 <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
                 <version>${spring-ai-alibaba-starter-dashscope.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.docker-java</groupId>
+                <artifactId>docker-java</artifactId>
+                <version>${docker-java.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-java</artifactId>
+                <version>${selenium.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.bonigarcia</groupId>
+                <artifactId>webdrivermanager</artifactId>
+                <version>${webdrivermanager.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-milvus-store</artifactId>
+                <version>${spring-ai-milvus-store.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-autoconfigure-vector-store-milvus</artifactId>
+                <version>${spring-ai-autoconfigure-vector-store-milvus.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-advisors-vector-store</artifactId>
+                <version>${spring-ai-advisors-vector-store.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-mcp-client</artifactId>
+                <version>${spring-ai-starter-mcp-client.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.cloud.ai</groupId>
+                <artifactId>spring-ai-alibaba-graph-core</artifactId>
+                <version>${spring-ai-alibaba-graph-core.version}</version>
             </dependency>
 
         </dependencies>

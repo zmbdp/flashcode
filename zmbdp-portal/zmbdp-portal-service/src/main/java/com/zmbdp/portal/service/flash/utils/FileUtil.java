@@ -49,6 +49,35 @@ public final class FileUtil {
     }
 
     /**
+     * 清理指定应用的预览目录（保留目录本身）。
+     * <p>
+     * 用于同一 appId 重复生成时，清理旧的构建产物（dist、jar 等），
+     * 避免旧文件残留干扰新一次预览。
+     *
+     * @param appId 应用 ID
+     * @param path  预览基础目录名（如 user-preview / user-deploy）
+     */
+    public static void cleanAppDir(Long appId, String path) throws IOException {
+        Path base = ensureBaseDir(path);
+        Path appDir = base.resolve(appId.toString());
+        if (!Files.exists(appDir)) {
+            return;
+        }
+        log.info("清理预览目录: {}", appDir);
+        try (var stream = Files.walk(appDir)) {
+            stream.sorted((a, b) -> b.compareTo(a)) // 逆序，先删文件再删子目录
+                    .filter(p -> !p.equals(appDir)) // 保留应用目录本身
+                    .forEach(p -> {
+                        try {
+                            Files.delete(p);
+                        } catch (IOException e) {
+                            log.warn("删除文件失败: {}", p, e);
+                        }
+                    });
+        }
+    }
+
+    /**
      * 复制目录
      */
     public static void copyDirectory(Path source, Path target) throws IOException {

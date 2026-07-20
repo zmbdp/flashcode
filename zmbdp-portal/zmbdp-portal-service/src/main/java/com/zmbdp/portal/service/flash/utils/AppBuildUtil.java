@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -54,7 +55,14 @@ public class AppBuildUtil {
      */
     public static void buildSpringBoot(Long appId, Path springRootDir, DockerClient dockerClient, String previewDeployPath, String containerName) {
         try {
-            runProcess(List.of("mvn", "clean", "package", "-DskipTests"), springRootDir);
+            // 兜底：扫描业务启动类全限定名，显式指定 main class，避免 AI 误生成多个 Application 导致 repackage 失败
+            String mainClass = findMainClassName(springRootDir);
+            List<String> mvnCmd = new ArrayList<>(List.of("mvn", "clean", "package", "-DskipTests"));
+            if (mainClass != null) {
+                log.info("显式指定打包主类: {}", mainClass);
+                mvnCmd.add("-Dstart-class=" + mainClass);
+            }
+            runProcess(mvnCmd, springRootDir);
             Path targetDir = springRootDir.resolve("target");
             Path previewDir = FileUtil.ensureAppDir(appId, previewDeployPath);
             if (Files.exists(targetDir)) {
@@ -71,10 +79,10 @@ public class AppBuildUtil {
                         try {
                             executeJarInContainer(appId, jar.getFileName().toString(), dockerClient, previewDeployPath, containerName);
                         } catch (Exception e) {
-                            log.error("在容器中执行 jar 包失败，appId={}, jar={}, 错误: {}", appId, jar.getFileName(), e.getMessage(), e);
+                            log.error("在容器中执行 jar 包失败，appId = {}, jar = {}, 错误: {}", appId, jar.getFileName(), e.getMessage(), e);
                         }
                     } else {
-                        log.warn("未在 target 目录找到 jar 文件，appId={}", appId);
+                        log.warn("未在 target 目录找到 jar 文件，appId = {}", appId);
                     }
                 }
             } else {
@@ -142,9 +150,60 @@ public class AppBuildUtil {
             }
 
         } catch (Exception e) {
-            log.error("在容器中执行 jar 包失败，容器名={}, appId={}, jar={}, 错误: {}",
+            log.error("在容器中执行 jar 包失败，容器名 = {}, appId = {}, jar = {}, 错误: {}",
                     containerName, appId, jarFileName, e.getMessage(), e);
             throw new RuntimeException("在容器中执行 jar 包失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 扫描后端工程，找出业务启动类的全限定名。
+     * <p>
+     * 选取规则：
+     * 1. 文件名以 Application.java 结尾，且文件内包含 {@code @SpringBootApplication} 注解
+     * 2. 排除 Spring Initializr 默认包名（com.example、com.example.demo、com.demo 等）
+     * 3. 多个候选时取第一个（按路径字典序），无候选时返回 null
+     * <p>
+     * 目的：防止 AI 误生成两个启动类导致 spring-boot-maven-plugin:repackage 失败。
+     *
+     * @param springRootDir 后端工程根目录（含 src/main/java）
+     * @return 启动类全限定名，例如 com.foodblog.FoodBlogApplication；未找到返回 null
+     */
+    private static String findMainClassName(Path springRootDir) {
+        Path javaRoot = springRootDir.resolve("src/main/java");
+        if (!Files.exists(javaRoot)) {
+            return null;
+        }
+        // Spring Initializr 默认包前缀，一律排除
+        List<String> forbiddenPrefixes = List.of("com/example/", "com/demo/");
+        try (Stream<Path> stream = Files.walk(javaRoot)) {
+            return stream
+                    .filter(Files::isRegularFile)
+                    .filter(p -> p.getFileName().toString().endsWith("Application.java"))
+                    .filter(p -> {
+                        Path rel = javaRoot.relativize(p);
+                        String pkgPath = rel.toString().replace('\\', '/');
+                        return forbiddenPrefixes.stream().noneMatch(pkgPath::startsWith);
+                    })
+                    .filter(p -> {
+                        try {
+                            String content = Files.readString(p, StandardCharsets.UTF_8);
+                            return content.contains("@SpringBootApplication");
+                        } catch (IOException e) {
+                            return false;
+                        }
+                    })
+                    .map(p -> {
+                        Path rel = javaRoot.relativize(p);
+                        String fqn = rel.toString().replace('\\', '/').replace('/', '.');
+                        return fqn.substring(0, fqn.length() - ".java".length());
+                    })
+                    .sorted()
+                    .findFirst()
+                    .orElse(null);
+        } catch (IOException e) {
+            log.warn("扫描启动类失败，目录 = {}, 错误 = {}", javaRoot, e.getMessage());
+            return null;
         }
     }
 
@@ -174,7 +233,7 @@ public class AppBuildUtil {
      * @param port        端口
      */
     private static void updateNginxConfig(String containerId, Long appId, int port, DockerClient dockerClient) {
-        log.info("更新 nginx 配置，appId={}, port={}", appId, port);
+        log.info("更新 nginx 配置，appId = {}, port = {}", appId, port);
         String scriptPath = "/workspace/scripts/update_nginx_location.sh";
         String updateCommand = scriptPath + " " + appId + " " + port;
         String reloadCommand = "nginx -s reload";
@@ -182,13 +241,13 @@ public class AppBuildUtil {
         try {
             execInContainer(containerId, updateCommand, "更新 nginx 配置", dockerClient);
             execInContainer(containerId, reloadCommand, "重载 nginx", dockerClient);
-            log.info("容器 {} 的 nginx 配置已更新并重载，appId={}, port={}", containerId, appId, port);
+            log.info("容器 {} 的 nginx 配置已更新并重载，appId = {}, port = {}", containerId, appId, port);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            log.error("更新 nginx 配置时线程被中断，appId={}, port={}", appId, port, ie);
+            log.error("更新 nginx 配置时线程被中断，appId = {}, port = {}", appId, port, ie);
             throw new RuntimeException("更新 nginx 配置过程中线程被中断", ie);
         } catch (Exception e) {
-            log.error("更新 nginx 配置失败，appId={}, port={}, 错误: {}", appId, port, e.getMessage(), e);
+            log.error("更新 nginx 配置失败，appId = {}, port = {}, 错误: {}", appId, port, e.getMessage(), e);
             throw new RuntimeException("更新 nginx 配置失败: " + e.getMessage(), e);
         }
     }

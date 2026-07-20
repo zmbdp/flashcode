@@ -143,7 +143,7 @@ services:
       timeout: 3s
       retries: 10
   flashcode-web-prd02:
-    image: nginx:1.24.0
+    image: crpi-otuh3k08p4yxr3tv.cn-shanghai.personal.cr.aliyuncs.com/zmbdp-infra/nginx:1.24.0
     container_name: flashcode-web-prd02
     restart: always
     networks:

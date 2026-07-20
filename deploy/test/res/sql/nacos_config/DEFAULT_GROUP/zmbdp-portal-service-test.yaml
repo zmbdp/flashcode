@@ -20,10 +20,10 @@ app:
     # 预览地址
     host: http://你的服务器ip:80/preview
     # 预览容器名称
-    container-name:
-  # 部署容器名称
+    container-name: flashcode-userapp-preview
+  # 部署容器名称（部署容器还没启动的话先填，后续会用）
   deploy:
-    containerName:
+    containerName: flashcode-userapp-deploy
 
 docker:
   host: tcp://你的服务器ip:2376

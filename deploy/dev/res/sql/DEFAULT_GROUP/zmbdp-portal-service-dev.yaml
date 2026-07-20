@@ -18,7 +18,7 @@ xxl:
 app:
   preview:
     # 预览地址
-    host: http://你的服务器ip:80/preview
+    host: http://你的云服务器外网ip/你的虚拟机外网ip:80/preview
     # 预览容器名称
     container-name: flashcode-userapp-preview
   # 部署容器名称（部署容器还没启动的话先填，后续会用）
@@ -26,7 +26,7 @@ app:
     containerName: flashcode-userapp-deploy
 
 docker:
-  host: tcp://你的服务器ip:2376
+  host: tcp://你的云服务器外网ip/你的虚拟机外网ip:2376
   # 证书文件地址
   cert-path: /workspace/cert
 

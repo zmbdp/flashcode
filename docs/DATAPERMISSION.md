@@ -59,7 +59,7 @@ flashcode 采用 **MyBatis 拦截器 + 策略模式** 实现数据权限控制�
 <dependency>
     <groupId>com.zmbdp</groupId>
     <artifactId>zmbdp-common-datapermission</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 </dependency>
 ```
 

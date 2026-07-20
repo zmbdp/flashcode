@@ -6,16 +6,16 @@
     <parent>
         <groupId>com.zmbdp</groupId>
         <artifactId>zmbdp-portal</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0</version>
     </parent>
 
     <groupId>com.zmbdp</groupId>
     <artifactId>zmbdp-portal-service</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -73,57 +73,117 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-milvus-store</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-autoconfigure-vector-store-milvus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-advisors-vector-store</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-graph-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.zmbdp</groupId>
             <artifactId>zmbdp-common-cache</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zmbdp</groupId>
             <artifactId>zmbdp-portal-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zmbdp</groupId>
             <artifactId>zmbdp-common-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zmbdp</groupId>
             <artifactId>zmbdp-common-redis</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zmbdp</groupId>
             <artifactId>zmbdp-common-security</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zmbdp</groupId>
             <artifactId>zmbdp-admin-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zmbdp</groupId>
             <artifactId>zmbdp-common-message</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zmbdp</groupId>
             <artifactId>zmbdp-common-log</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.zmbdp</groupId>
             <artifactId>zmbdp-common-monitor</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
     </dependencies>
@@ -151,6 +211,7 @@
                 <configuration>
                     <!--指定远程服务器的Docker服务访问地址-->
                     <dockerHost>${dockerhost.addr}</dockerHost>
+                    <!--TODO: 每个环境都得改!!!-->
 <!--                    <certPath>${project.basedir}/../../deploy/test/app/config/cert</certPath>-->
                     <certPath>${project.basedir}/../../deploy/dev/app/config/cert</certPath>
                     <!--指定私有仓库的访问路径-->
@@ -170,12 +231,26 @@
                                 <dockerFileDir>${project.basedir}</dockerFileDir>
                             </build>
                             <run>
+                                <network>
+                                    <mode>custom</mode>
+                                    <name>${docker.network.name}</name>
+                                </network>
                                 <volumes>
-                                    <volume>${skywalking.path}</volume>
-                                    <volume>/opt/flashcode/test/data/flashcodedata/userapp/user-code:/workspace/user-code</volume>
-                                    <volume>/opt/flashcode/test/data/flashcodedata/userapp/user-preview:/workspace/user-preview</volume>
-                                    <volume>/opt/flashcode/dev/data/flashcodedata/userapp/user-deploy:/workspace/user-deploy</volume>
-                                    <volume>/opt/flashcode/test/app/config/cert:/workspace/cert</volume>
+                                    <bind>
+                                        <volume>${skywalking.path}</volume>
+    <!--                                    <volume>/opt/flashcode/deploy/test/data/flashcodedata/userapp/user-code:/workspace/user-code</volume>-->
+    <!--                                    <volume>/opt/flashcode/deploy/test/data/flashcodedata/userapp/user-preview:/workspace/user-preview</volume>-->
+    <!--                                    <volume>/opt/flashcode/deploy/test/app/config/cert:/workspace/cert</volume>-->
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/user-deploy:/workspace/user-deploy</volume>
+                                        <volume>/opt/flashcode/deploy/dev/app/config/cert:/workspace/cert</volume>
+                                        <!-- Maven 本地仓库持久化（避免每次构建都重新下载依赖） -->
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/maven-repo:/root/.m2/repository</volume>
+                                        <!-- npm 缓存持久化（避免每次构建都重新下载依赖） -->
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/npm-cache:/root/.npm</volume>
+                                        <!-- 用户生成的代码和预览产物持久化（容器重启不丢失，与 userapp-preview 容器共享 user-preview） -->
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/user-code:/workspace/user-code</volume>
+                                        <volume>/opt/flashcode/deploy/dev/data/flashcodedata/userapp/user-preview:/workspace/user-preview</volume>
+                                    </bind>
                                 </volumes>
                                 <env>
                                     <NACOS_ADDR>${nacos.addr}</NACOS_ADDR>

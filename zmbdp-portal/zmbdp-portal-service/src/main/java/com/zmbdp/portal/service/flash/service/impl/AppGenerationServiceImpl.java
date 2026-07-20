@@ -3,6 +3,7 @@ package com.zmbdp.portal.service.flash.service.impl;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.dockerjava.api.DockerClient;
+import com.zmbdp.common.domain.constants.CommonConstants;
 import com.zmbdp.common.domain.exception.ServiceException;
 import com.zmbdp.portal.service.flash.domain.dto.GenerateAppResDTO;
 import com.zmbdp.portal.service.flash.domain.entity.App;
@@ -18,6 +19,7 @@ import com.zmbdp.portal.service.flash.utils.ModelOutputParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 /**
  * 应用生成服务实现类
@@ -60,6 +64,13 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
      */
     @Autowired
     private DockerClient dockerClient;
+
+    /**
+     * 异步线程池（复用 common 的 ThreadPoolTaskExecutor，用于前后端并行构建）
+     */
+    @Autowired
+    @Qualifier(CommonConstants.ASYNCHRONOUS_THREADS_BEAN_NAME)
+    private Executor asyncExecutor;
 
     /**
      * 模型名称
@@ -202,9 +213,26 @@ public class AppGenerationServiceImpl implements IAppGenerationService {
                 break;
             case "VUE_SPRING":
                 Path vueProPath = appPath.resolve("frontend");
-                AppBuildUtil.buildVuePro(appId, vueProPath, previewDeployPath);
                 Path springProPath = appPath.resolve("backend");
-                AppBuildUtil.buildSpringBoot(appId, springProPath, dockerClient, previewDeployPath, containerName);
+                // 前后端并行构建，两个都成功才返回；任一失败抛异常
+                long buildStart = System.currentTimeMillis();
+                CompletableFuture<Void> vueFuture = CompletableFuture.runAsync(
+                        () -> AppBuildUtil.buildVuePro(appId, vueProPath, previewDeployPath),
+                        asyncExecutor
+                );
+                CompletableFuture<Void> springFuture = CompletableFuture.runAsync(
+                        () -> AppBuildUtil.buildSpringBoot(appId, springProPath, dockerClient, previewDeployPath, containerName),
+                        asyncExecutor
+                );
+                try {
+                    CompletableFuture.allOf(vueFuture, springFuture).join();
+                } catch (Exception e) {
+                    // 任一任务失败时取消另一个（避免线程空转），再抛出
+                    vueFuture.cancel(true);
+                    springFuture.cancel(true);
+                    throw new ServiceException("前后端构建失败: " + e.getCause().getMessage());
+                }
+                log.info("前后端并行构建完成，appId = {}, 总耗时 = {} ms", appId, System.currentTimeMillis() - buildStart);
                 break;
             default:
                 throw new ServiceException("不支持的应用类型：" + appType);

@@ -40,8 +40,10 @@ spring:
         options:
           flash:
             model:
-              doc: deepseek-v4-flash
-              code: deepseek-v4-pro
+              # doc: qwen-turbo
+              doc: qwen3.7-plus-2026-05-26
+              # code: qwen-turbo
+              code: qwen3.7-plus-2026-05-26
           # 核采样参数
           topP: 0.7
           # 是否启用思考
